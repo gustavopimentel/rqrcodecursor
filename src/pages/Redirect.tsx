@@ -46,7 +46,7 @@ export function Redirect() {
       supabase
         .from('qr_codes')
         .update({ 
-          scans: (qrcode.scans || 0) + 1,
+          scan_count: (qrcode.scan_count || 0) + 1,
           last_scanned_at: new Date().toISOString()
         })
         .eq('id', qrcode.id)
