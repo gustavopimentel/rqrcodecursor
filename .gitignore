@@ -30,6 +30,9 @@ dist-ssr
 .env.development.local
 .env.test.local
 
+# IMPORTANTE: .env.development e .env.production podem ser commitados
+# pois contêm apenas URLs públicas (não contêm secrets)
+
 # Build files
 build/
 .vercel
