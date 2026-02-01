@@ -149,14 +149,24 @@ export function formatQRCodeContent(type: QRCodeType, data: any): string {
 
 /**
  * Gera um código curto único para QR codes dinâmicos
+ * Usa caracteres aleatórios + timestamp para garantir unicidade
+ * 
+ * @returns Código curto de 16 caracteres (10 aleatórios + 6 do timestamp)
+ * @example generateShortCode() // => 'aBcD1234xy8j9k2l'
  */
 export function generateShortCode(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   let result = ''
-  for (let i = 0; i < 8; i++) {
+  
+  // 10 caracteres aleatórios
+  for (let i = 0; i < 10; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length))
   }
-  return result
+  
+  // + últimos 6 dígitos do timestamp em base36 (para ser mais curto)
+  const timestamp = Date.now().toString(36).slice(-6)
+  
+  return result + timestamp
 }
 
 /**

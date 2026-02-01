@@ -16,6 +16,7 @@ import { TypeSelectionStep } from '@/components/qrcode/steps/TypeSelectionStep'
 import { ModeSelectionStep } from '@/components/qrcode/steps/ModeSelectionStep'
 import { ContentFormStep } from '@/components/qrcode/steps/ContentFormStep'
 import { formatQRCodeContent, generateShortCode } from '@/lib/qrcode-utils'
+import { generateShortUrl } from '@/lib/config'
 
 const STEPS = ['Tipo', 'Modo', 'Conteúdo', 'Preview']
 
@@ -35,6 +36,22 @@ export function CreateQRCode() {
   const [createdId, setCreatedId] = useState<string | null>(null)
   const [downloadModalOpen, setDownloadModalOpen] = useState(false)
   const [generatedContent, setGeneratedContent] = useState('')
+
+  // Função helper para calcular o conteúdo do preview
+  const getPreviewContent = () => {
+    if (!typeData) return ''
+    
+    const content = formatQRCodeContent(selectedType, typeData)
+    
+    // Se for dinâmico, mostrar URL curta (como será salvo)
+    if (isDynamic) {
+      const tempCode = 'PREVIEW01' // Código de exemplo para preview
+      return generateShortUrl(tempCode)
+    }
+    
+    // Se for estático, mostrar conteúdo direto
+    return content
+  }
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
@@ -64,11 +81,9 @@ export function CreateQRCode() {
       if (isDynamic) {
         shortCode = generateShortCode()
         redirectUrl = content // O destino real
-        finalContent = `${window.location.origin}/r/${shortCode}` // A URL curta que vai no QR Code
+        finalContent = generateShortUrl(shortCode) // A URL curta que vai no QR Code
       }
       
-      setGeneratedContent(finalContent) // Define o conteúdo correto para preview/download
-
       const { data: qrcode, error } = await supabase
         .from('qr_codes')
         .insert({
@@ -86,6 +101,8 @@ export function CreateQRCode() {
 
       if (error) throw error
 
+      // IMPORTANTE: Usar o content do banco (garantir sincronização)
+      setGeneratedContent(qrcode.content)
       toast.success('QR Code criado com sucesso!')
       setCreatedId(qrcode.id)
     } catch (error: any) {
@@ -213,10 +230,28 @@ export function CreateQRCode() {
           {currentStep === 3 && typeData && (
             <Card className="p-6">
               <h3 className="text-xl font-bold text-neutral-dark mb-4">Preview do QR Code</h3>
+              
+              {isDynamic && (
+                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                    <span className="text-lg">🔄</span> QR Code Dinâmico
+                  </p>
+                  <p className="text-sm text-blue-800 mb-2">
+                    Este QR Code apontará para uma URL curta que redireciona para:
+                  </p>
+                  <div className="bg-blue-100 rounded px-3 py-2 text-sm font-mono text-blue-900 break-all">
+                    {formatQRCodeContent(selectedType, typeData)}
+                  </div>
+                  <p className="text-xs text-blue-700 mt-2">
+                    💡 Você poderá editar o destino depois sem recriar o QR Code!
+                  </p>
+                </div>
+              )}
+              
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <QRCodePreview
-                    value={formatQRCodeContent(selectedType, typeData)}
+                    value={getPreviewContent()}
                     title="Preview em Tempo Real"
                   />
                 </div>

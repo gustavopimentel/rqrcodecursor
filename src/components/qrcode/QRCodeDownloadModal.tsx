@@ -197,8 +197,8 @@ export function QRCodeDownloadModal({
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex justify-center">
               <div className="bg-white p-3 rounded-lg border border-gray-300">
+                {/* Preview visual pequeno */}
                 <QRCodeSVG
-                  id="download-qrcode-preview"
                   value={value}
                   size={120}
                   level="H"
@@ -209,6 +209,17 @@ export function QRCodeDownloadModal({
             <p className="text-center text-xs text-neutral mt-2">
               Preview • {selectedSize}x{selectedSize}px • {selectedFormat}
             </p>
+            
+            {/* QR Code em tamanho real (oculto) para download de qualidade */}
+            <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden' }}>
+              <QRCodeSVG
+                id="download-qrcode-preview"
+                value={value}
+                size={selectedSize}
+                level="H"
+                includeMargin={true}
+              />
+            </div>
           </div>
         </div>
 

@@ -11,6 +11,7 @@ export interface QRCode {
   short_code?: string | null
   redirect_url?: string | null
   scan_count: number
+  last_scanned_at?: string | null
   created_at: string
   updated_at: string
 }
